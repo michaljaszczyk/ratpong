@@ -9,10 +9,11 @@ import pl.setblack.pongi.scores.ScoreRecord;
 import pl.setblack.pongi.scores.UserScore;
 import pl.setblack.pongi.users.repo.UserData;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ScoresRepositoryInMem implements ScoresRepository{
+public class ScoresRepositoryInMem implements ScoresRepository, Serializable{
 
     private volatile HashMap<String, UserScore> allScores = HashMap.empty();
 
@@ -26,6 +27,12 @@ public class ScoresRepositoryInMem implements ScoresRepository{
             UserScore userScore = allScores.getOrElse(score.userId, UserScore.emptyFor(score.userId)).add(score);
             allScores = allScores.put(score.userId, userScore);
         }
+
+//        rec.forEach(singleRecord -> {
+//            allScores.get(singleRecord.userId)
+//                    .orElse(Option.some(UserScore.emptyFor(singleRecord.userId)))
+//                    .forEach(oldRecord -> allScores = allScores.put(singleRecord.userId, oldRecord.add(singleRecord)));
+//        });
     }
 
     @Override
@@ -35,15 +42,7 @@ public class ScoresRepositoryInMem implements ScoresRepository{
 
     @Override
     public List<UserScore> getTopScores(int limit) {
-        Map<String, UserScore> result = new LinkedHashMap<>();
-        return allScores.toJavaMap().entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.comparingInt(o -> o.totalScore)))
-                .map(e -> e.getValue())
-                .collect(Collectors.toList());
-
-        return result.entrySet()
-                .stream()
-                .limit(limit));
+        return allScores.values().sortBy(us -> us.totalScore).reverse().take(limit).toList();
     }
 
 

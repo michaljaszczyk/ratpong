@@ -34,5 +34,11 @@ public class ScoresRepositoryNonBlocking {
 
     public CompletionStage<List<UserScore>> getTopScores(final int limit) {
     	return CompletableFuture.completedFuture(this.scoresRepository.getTopScores(limit) );
+
+//    	final CompletableFuture<List<UserScore>> result = new CompletableFuture<>();
+//    	writesExecutor.execute(() -> {
+//    		result.complete(this.scoresRepository.getTopScores(limit));
+//		});
+//    	return result;
     }
 }
